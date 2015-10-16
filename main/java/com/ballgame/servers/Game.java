@@ -1,5 +1,6 @@
 package com.ballgame.servers;
 
+import com.ballgame.data_handlers.CommandHandlersManager;
 import com.ballgame.data_handlers.DataHandlerManager;
 import com.ballgame.objects.User;
 import com.ballgame.objects.UsersMediator;
@@ -23,6 +24,8 @@ public class Game {
     private static final Map<Session,User> users = new HashMap<>();
     private static final UsersMediator usersMediator = new UsersMediator();
     private static final DataHandlerManager dataHandlerManager = new DataHandlerManager();
+    private static final CommandHandlersManager commandHandlersManager = 
+        new CommandHandlersManager(Game.dataHandlerManager);
     
     @OnOpen
     public void onOpen(Session session) {
@@ -39,7 +42,14 @@ public class Game {
         reader.close();
         String type = ob.getString("type");
         String data = ob.getString("data");
-        Game.dataHandlerManager.handleMessageData(data, session, Game.users);
+        if( type.equals("message") ) {
+            Game.dataHandlerManager.handleMessageData(session, data, Game.users);
+        } else if( type.equals("command") ) {
+            Game.commandHandlersManager.handle(
+                Game.usersMediator.getUserBySession(session), 
+                    data, 
+                    Game.users);
+        }
     }
     
     @OnClose

@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class DataHandlerManager {
     
-    private void sendData(JSONObject jsonObjectToSend, Map<Session,User> users, Session author) {
+    private void sendDataToManyUsers(JSONObject jsonObjectToSend, Map<Session,User> users, Session author) {
         for (Map.Entry pair : users.entrySet()) {
             try {
                 Session session = (Session)pair.getKey();
@@ -28,11 +28,27 @@ public class DataHandlerManager {
         }
     }
     
-    public void sendData(JSONObject jsonObjectToSend, Map<Session,User> users) {
-        this.sendData(jsonObjectToSend, users, null);
+    public void sendDataToManyUsers(JSONObject jsonObjectToSend, Map<Session,User> users) {
+        this.sendDataToManyUsers(jsonObjectToSend, users, null);
     }
     
-    public void handleMessageData(String data, Session source,Map<Session,User> users) {
+    public void sendDataToOneUser(User receiver, String message, String type) {
+        try {
+            JSONObject ob = new JSONObject();
+            ob.put("type", type);
+            ob.put("message", message);
+            receiver.getSession().getBasicRemote().sendText(ob.toString());
+        } catch(IOException e) {
+            System.out.println("CommandHandlersManager error: could not send response to user "
+                + receiver.getName());
+        }
+    }
+    
+    public void sendDataToOneUser(User receiver, String message) {
+        this.sendDataToOneUser(receiver, message, "messageFromServer");
+    }
+    
+    public void handleMessageData(Session source, String data,Map<Session,User> users) {
         String currentTime = Game.getCurrentTime();
         User author = users.get(source);
         String message = currentTime + author.getName() + ": " + data;
@@ -40,7 +56,7 @@ public class DataHandlerManager {
         ob.put("type", "message");
         ob.put("color", author.getColor());
         ob.put("message", message);
-        this.sendData(ob, users);
+        this.sendDataToManyUsers(ob, users);
     }
     
     public void handleAddUserData(int id, String name, Map<Session,User> users, Session newSession) {
@@ -48,7 +64,7 @@ public class DataHandlerManager {
         ob.put("type", "addUser");
         ob.put("id", id);
         ob.put("name", name);
-        this.sendData(ob, users, newSession);
+        this.sendDataToManyUsers(ob, users, newSession);
         this.sendUsersList(newSession, users);
     }
     
@@ -57,7 +73,7 @@ public class DataHandlerManager {
         ob.put("type", "removeUser");
         ob.put("id", id);
         users.remove(excludedSession);
-        this.sendData(ob, users);
+        this.sendDataToManyUsers(ob, users);
     }
     
     private void sendUsersList(Session newSession, Map<Session,User> users) {

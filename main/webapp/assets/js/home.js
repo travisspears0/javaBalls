@@ -70,6 +70,21 @@ $(document).ready(function(){
                     message: message
                 });
                 break;
+            case "messageFromServer":
+                var message = data['message'];
+                receiveMessage({
+                    color: "#FFFFFF",
+                    message: "<u>*SERVER* "+message+"</u>"
+                });
+                break;
+            case "userChangedName":
+                for( var i in users ) {
+                    if( users[i]['id'] == data['id'] ) {
+                        users[i]['name'] = data['name'];
+                        updateUsers();
+                    }
+                }
+                break;
             case "addUser":
                 var id = data['id'];
                 var name = data['name'];
@@ -173,7 +188,12 @@ $(document).ready(function(){
         if( !msg.length || !msg.trim().length ) {
             return;
         }
-        sendToServer(msg,"message");
+        if( msg[0] === '/' ) {
+            msg = msg.substring(1);
+            sendToServer(msg,"command");
+        } else {
+            sendToServer(msg,"message");
+        }
         $("#chat-field").val("");
     });
     

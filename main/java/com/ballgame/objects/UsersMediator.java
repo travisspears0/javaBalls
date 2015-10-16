@@ -2,6 +2,7 @@ package com.ballgame.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.websocket.Session;
 
 public class UsersMediator {
     
@@ -13,6 +14,15 @@ public class UsersMediator {
     
     public boolean removeUser(User user) {
         return this.users.remove(user);
+    }
+    
+    public User getUserBySession(Session session) {
+        for( User user : this.users ) {
+            if( user.getSession() == session ) {
+                return user;
+            }
+        }
+        return null;
     }
     
     public void notifyAll(User source) {
