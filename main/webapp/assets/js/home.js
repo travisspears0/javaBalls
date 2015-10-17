@@ -70,12 +70,37 @@ $(document).ready(function(){
                     message: message
                 });
                 break;
+            case "privateMessage":
+                var message = data['message'];
+                var color = data['color'];
+                receiveMessage({
+                    color: color,
+                    message: "<i>"+message+"</i>"
+                });
+                break;
             case "messageFromServer":
                 var message = data['message'];
-                receiveMessage({
-                    color: "#FFFFFF",
-                    message: "<u>*SERVER* "+message+"</u>"
-                });
+                if(message instanceof Array) {
+                    receiveMessage({
+                        color: "#FFFFFF",
+                        message: "********** HELP **********"
+                    });
+                    for( var i in message ) {
+                        receiveMessage({
+                            color: "#FFFFFF",
+                            message: "*"+message[i]
+                        });
+                    }
+                    receiveMessage({
+                        color: "#FFFFFF",
+                        message: "**************************"
+                    });
+                } else {
+                    receiveMessage({
+                        color: "#FFFFFF",
+                        message: "*"+message
+                    });
+                }
                 break;
             case "userChangedName":
                 for( var i in users ) {
@@ -106,7 +131,11 @@ $(document).ready(function(){
                     addUser(user);
                 }
                 break;
-            case "board":
+            case "joinedGame":
+                hideUserInterface();
+                break;
+            case "gameFull":
+                
                 break;
             default:
                 write("unrecognized data: " + data);
@@ -173,7 +202,7 @@ $(document).ready(function(){
     /**
      * EVENTS
      * */
-    
+    /*
     $("#show-hide-button").click(function(){
         var top = parseInt($("#user-interface").css("top"));
         if( top >= 0 ) {
@@ -182,7 +211,7 @@ $(document).ready(function(){
             openUserInterface();
         }
     });
-    
+    */
     $("#chat-send-button").click(function(){
         var msg = $("#chat-field").val();
         if( !msg.length || !msg.trim().length ) {

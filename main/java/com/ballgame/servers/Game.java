@@ -2,6 +2,7 @@ package com.ballgame.servers;
 
 import com.ballgame.data_handlers.CommandHandlersManager;
 import com.ballgame.data_handlers.DataHandlerManager;
+import com.ballgame.game.GameManager;
 import com.ballgame.objects.User;
 import com.ballgame.objects.UsersMediator;
 import java.io.StringReader;
@@ -25,14 +26,16 @@ public class Game {
     private static final UsersMediator usersMediator = new UsersMediator();
     private static final DataHandlerManager dataHandlerManager = new DataHandlerManager();
     private static final CommandHandlersManager commandHandlersManager = 
-        new CommandHandlersManager(Game.dataHandlerManager);
+        new CommandHandlersManager();
+    private static final GameManager gameNotifierManager =
+        new GameManager();
     
     @OnOpen
     public void onOpen(Session session) {
         this.log("new connection: " + session.getId());
         User newUser = new User(Game.usersMediator, session);
         Game.users.put(session, newUser);
-        Game.dataHandlerManager.handleAddUserData(newUser.getId(), newUser.getName(), Game.users, session);
+        Game.dataHandlerManager.handleAddUserData(newUser.getId(), newUser.getName(), session);
     }
     
     @OnMessage
@@ -43,7 +46,7 @@ public class Game {
         String type = ob.getString("type");
         String data = ob.getString("data");
         if( type.equals("message") ) {
-            Game.dataHandlerManager.handleMessageData(session, data, Game.users);
+            Game.dataHandlerManager.handleMessageData(session, data);
         } else if( type.equals("command") ) {
             Game.commandHandlersManager.handle(
                 Game.usersMediator.getUserBySession(session), 
@@ -57,7 +60,7 @@ public class Game {
         this.log("closed connecion: " + session.getId());
         int idOfUserToRemove = Game.users.get(session).getId();
         Game.users.remove(session);
-        Game.dataHandlerManager.handleRemoveUserData(idOfUserToRemove, Game.users, session);
+        Game.dataHandlerManager.handleRemoveUserData(idOfUserToRemove, session);
     }
     
     @OnError
@@ -76,5 +79,26 @@ public class Game {
         String date = timeSplit[0];
         String time = timeSplit[1].split("\\.")[0];
         return "[" + date + " " + time + "]";
+    }
+
+    public static UsersMediator getUsersMediator() {
+        return usersMediator;
+    }
+
+    public static Map<Session, User> getUsers() {
+        Map<Session, User> copy = new HashMap<>(users);
+        return copy;
+    }
+
+    public static DataHandlerManager getDataHandlerManager() {
+        return dataHandlerManager;
+    }
+
+    public static CommandHandlersManager getCommandHandlersManager() {
+        return commandHandlersManager;
+    }
+
+    public static GameManager getGameNotifierManager() {
+        return gameNotifierManager;
     }
 }

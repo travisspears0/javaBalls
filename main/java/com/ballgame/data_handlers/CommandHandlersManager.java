@@ -1,56 +1,41 @@
 package com.ballgame.data_handlers;
 
+import com.ballgame.exceptions.UserDataException;
 import com.ballgame.objects.User;
-import java.util.ArrayList;
-import java.util.List;
+import com.ballgame.servers.Game;
+import java.util.HashMap;
 import java.util.Map;
 import javax.websocket.Session;
 import org.json.JSONObject;
 
 public class CommandHandlersManager {
     
-    private final List<CommandHandler> commandHanlders = new ArrayList<>();
-    private final DataHandlerManager dataHandlerManager;
+    private final Map<String, CommandHandler> commandHanlders = new HashMap<>();
     
-    public CommandHandlersManager(DataHandlerManager dataHandlerManager) {
-        this.dataHandlerManager = dataHandlerManager;
+    public CommandHandlersManager() {
+        this.commandHanlders.put("help", new HelpCommandHandler());
+        this.commandHanlders.put("pm", new PrivCommandHandler());
+        this.commandHanlders.put("name", new NameCommandHandler());
+        this.commandHanlders.put("play", new PlayCommandHandler());
     }
     
     public void handle(User caller, String data, Map<Session, User> users) {
-        String command = data.split(" ")[0];
-        try {
-            switch( command ) {
-                case "help": {
-                    this.dataHandlerManager.sendDataToOneUser(caller,
-                        "help hereeeee<br/>asdasddas<br/>");
-                    break;
-                }
-                case "name": {
-                    try {
-                        String newName = data.split(" ")[1];
-                        caller.setName(newName);
-                        JSONObject ob = new JSONObject();
-                        ob.put("type", "userChangedName");
-                        ob.put("name", newName);
-                        ob.put("id", caller.getId());
-                        this.dataHandlerManager.sendDataToManyUsers(ob, users);
-                    } catch(ArrayIndexOutOfBoundsException e) {
-                        throw new UserDataException("no name provided");
-                    }
-                    break;
-                }
-                default: {
-                    throw new UserDataException("no such command");
-                }
-            }
-        } catch(UserDataException e) {
-            this.dataHandlerManager.sendDataToOneUser(caller, e.getMessage());
+        String[] dataArray = data.split(" ");
+        String command = dataArray[0];
+        String[] arguments = new String[dataArray.length-1];
+        for( int i=1 ; i<dataArray.length ; ++i ) {
+            arguments[i-1] = dataArray[i];
         }
-    }
-    
-    private class UserDataException extends Exception {
-        public UserDataException(String msg) {
-            super(msg);
+        try {
+            if( !this.commandHanlders.containsKey(command) ) {
+                throw new UserDataException("no such command");
+            }
+            this.commandHanlders.get(command).execute(caller,arguments);
+        } catch(UserDataException e) {
+            JSONObject ob = new JSONObject();
+            ob.put("type", "messageFromServer");
+            ob.put("message", e.getMessage());
+            Game.getDataHandlerManager().sendDataToOneUser(caller, ob);
         }
     }
     

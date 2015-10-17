@@ -2,56 +2,39 @@ package com.ballgame.game_objects;
 
 public abstract class AbstractObject implements GameObject {
     
-    /*
-    public static final String[] colors = {
-        "#FF0000",  //red
-        "#00FF00",  //green
-        "#0000FF",  //blue
-        "#990099",  //purple
-        "#FF9900",  //orange
-        "#996600",  //brown
-        "#FF0099",  //pink
-        "#FFFF33"   //yellow
-    };
-    */
-    
     protected int x;
     protected int y;
     protected int size;
-    protected final SHAPE shape;
     protected GameObject.COLOR color;
-    
-    public AbstractObject(SHAPE shape) {
-        this.shape = shape;
-    }
+    protected boolean  changed = false;
 
     @Override
-    public int getX() {
+    public synchronized int getX() {
         return x;
     }
 
     @Override
-    public void setX(int x) {
+    public synchronized void setX(int x) {
         this.x = x;
     }
 
     @Override
-    public int getY() {
+    public synchronized int getY() {
         return y;
     }
 
     @Override
-    public void setY(int y) {
+    public synchronized void setY(int y) {
         this.y = y;
     }
 
     @Override
-    public int getSize() {
+    public synchronized int getSize() {
         return size;
     }
 
     @Override
-    public void setSize(int size) {
+    public synchronized void setSize(int size) {
         this.size = size;
     }
 
@@ -65,7 +48,15 @@ public abstract class AbstractObject implements GameObject {
     public void setColor(GameObject.COLOR color) {
         this.color = color;
     }
-    
-    
+
+    @Override
+    public synchronized boolean isChanged() {
+        return changed;
+    }
+
+    @Override
+    public synchronized void setChanged(boolean changed) {
+        this.changed = changed;
+    }
     
 }

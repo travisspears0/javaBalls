@@ -4,8 +4,8 @@ public class PlayerObject extends AbstractObject {
 
     private int angle = 0;
     
-    public PlayerObject(SHAPE shape) {
-        super(shape);
+    public PlayerObject() {
+        
     }
 
     public int getAngle() {

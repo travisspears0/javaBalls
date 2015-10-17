@@ -25,6 +25,15 @@ public class UsersMediator {
         return null;
     }
     
+    public User getUserByName(String name) {
+        for( User user : this.users ) {
+            if( user.getName().equals(name) ) {
+                return user;
+            }
+        }
+        return null;
+    }
+    
     public void notifyAll(User source) {
         for( User player : this.users ) {
             if( player == source ) {
@@ -32,6 +41,11 @@ public class UsersMediator {
             }
             
         }
+    }
+    
+    public List<User> getUsers() {
+        List<User> copy = new ArrayList<>(this.users);
+        return copy;
     }
     
 }

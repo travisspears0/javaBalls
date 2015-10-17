@@ -1,5 +1,6 @@
 package com.ballgame.objects;
 
+import com.ballgame.game_objects.PlayerObject;
 import javax.websocket.Session;
 
 public class User {
@@ -8,7 +9,7 @@ public class User {
     private final int id = User.CURRENT_ID++;
     
     private String name = "user #" + this.id;
-    private Player player;
+    private PlayerObject playerObject;
     private final UsersMediator mediator;
     private final Session session;
     
@@ -38,14 +39,6 @@ public class User {
         return true;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
     public String getName() {
         return name;
     }
@@ -59,13 +52,21 @@ public class User {
     }
     
     public String getColor() {
-        if( this.player == null ) {
+        if( this.playerObject == null ) {
             return "#FFFFFF";
         }
-        return this.player.getPlayerObject().getColor();
+        return this.playerObject.getColor();
     }
 
     public Session getSession() {
         return session;
+    }
+
+    public PlayerObject getPlayerObject() {
+        return playerObject;
+    }
+
+    public void assignPlayerObject() {
+        this.playerObject = new PlayerObject();
     }
 }
