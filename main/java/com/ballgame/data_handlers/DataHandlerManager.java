@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class DataHandlerManager {
     
-    public void sendDataToManyUsers(JSONObject jsonObjectToSend, Session author) {
+    public void sendDataToAllUsers(JSONObject jsonObjectToSend, Session author) {
         Map<Session,User> users = Game.getUsers();
         for (Map.Entry pair : users.entrySet()) {
             try {
@@ -29,8 +29,8 @@ public class DataHandlerManager {
         }
     }
     
-    public void sendDataToManyUsers(JSONObject jsonObjectToSend) {
-        this.sendDataToManyUsers(jsonObjectToSend, null);
+    public void sendDataToAllUsers(JSONObject jsonObjectToSend) {
+        this.sendDataToAllUsers(jsonObjectToSend, null);
     }
     
     public void sendDataToOneUser(User receiver, JSONObject objectToSend) {
@@ -50,7 +50,7 @@ public class DataHandlerManager {
         ob.put("type", "message");
         ob.put("color", author.getColor());
         ob.put("message", message);
-        this.sendDataToManyUsers(ob);
+        this.sendDataToAllUsers(ob);
     }
     
     public void handleAddUserData(int id, String name, Session newSession) {
@@ -58,16 +58,15 @@ public class DataHandlerManager {
         ob.put("type", "addUser");
         ob.put("id", id);
         ob.put("name", name);
-        this.sendDataToManyUsers(ob, newSession);
+        this.sendDataToAllUsers(ob, newSession);
         this.sendUsersList(newSession);
     }
     
-    public void handleRemoveUserData(int id, Session excludedSession) {
+    public void handleRemoveUserData(int id) {
         JSONObject ob = new JSONObject();
         ob.put("type", "removeUser");
         ob.put("id", id);
-        Game.getUsers().remove(excludedSession);
-        this.sendDataToManyUsers(ob);
+        this.sendDataToAllUsers(ob);
     }
     
     private void sendUsersList(Session newSession) {
@@ -83,6 +82,7 @@ public class DataHandlerManager {
             userOb.put("id",user.getId());
             userOb.put("name",user.getName());
             userOb.put("color",user.getColor());
+            userOb.put("inGame", user.isInGame());
             groupOb.put(user.getId()+"",userOb.toString());
         }
         JSONObject resultOb = new JSONObject();

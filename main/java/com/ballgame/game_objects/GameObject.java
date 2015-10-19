@@ -6,7 +6,7 @@ public interface GameObject {
         CIRCLE,
         SQUARE
     }*/
-    
+    /*
     public enum COLOR {
         _FF0000,//red
         _00FF00,//green
@@ -19,7 +19,7 @@ public interface GameObject {
         _FFFFFF,//white
         _000000//black
     }
-    
+    */
     public int getX();
     public void setX(int x);
     public int getY();
@@ -27,7 +27,7 @@ public interface GameObject {
     public int getSize();
     public void setSize(int size);
     public String getColor();
-    public void setColor(COLOR color);
+    public void setColor(String color);
     public void setChanged(boolean changed);
     public boolean isChanged();
     

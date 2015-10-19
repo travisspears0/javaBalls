@@ -12,6 +12,7 @@ public class User {
     private PlayerObject playerObject;
     private final UsersMediator mediator;
     private final Session session;
+    private boolean inGame = false;
     
     public User(UsersMediator mediator, Session session) {
         this.mediator = mediator;
@@ -68,5 +69,13 @@ public class User {
 
     public void assignPlayerObject() {
         this.playerObject = new PlayerObject();
+    }
+
+    public boolean isInGame() {
+        return inGame;
+    }
+
+    public void setInGame(boolean inGame) {
+        this.inGame = inGame;
     }
 }

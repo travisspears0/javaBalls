@@ -18,6 +18,7 @@ $(document).ready(function(){
     var messages = [];
     var MAX_MESSAGES = 20;
     var users = [];
+    var playing = false;
     
     /**
      * HELPING FUCTIONS
@@ -46,12 +47,17 @@ $(document).ready(function(){
         for( var i=0 ; i<users.length ; ++i ) {
             var username = users[i]["name"];
             var dataReturned = users[i]['dataReturned'];
+            var inGame = users[i]['inGame'];
             
             var userDiv = document.createElement("div");
-            var className = "user glyphicon glyphicon-user ";
+            var className = "user glyphicon ";
+            var iconClass = "glyphicon-user";
             if( dataReturned ) {
-                className += "glyphicon-certificate";
+                iconClass = "glyphicon-certificate";
+            } else if( inGame ) {
+                iconClass = "glyphicon-play-circle" ;
             }
+            className += iconClass ;
             userDiv.className = className;
             $(userDiv).html("<span>"+ username +"</span>");
             $("#users-list").append(userDiv);
@@ -131,16 +137,50 @@ $(document).ready(function(){
                     addUser(user);
                 }
                 break;
-            case "joinedGame":
-                hideUserInterface();
+            case "userJoinedGame":
+                var id = data['id'];
+                var dataReturned = ( typeof data['dataReturned'] !== "undefined" ) ? true : false ;
+                if( dataReturned ) {
+                    write(data);
+                    hideUserInterface();
+                    playing = true;
+                } else {
+                    for( var i in users ) {
+                        if( users[i]['id'] == id ) {
+                            users[i]['inGame'] = true;
+                        }
+                    }
+                    updateUsers();
+                }
                 break;
             case "gameFull":
-                
+                receiveMessage({
+                    color: "#FFFFFF",
+                    message: "you can not join right now, the game is full, sorry"
+                });
                 break;
             default:
                 write("unrecognized data: " + data);
         }
     }
+    
+    $("body").keydown(function(e){
+        if( !playing ) {
+            return;
+        }
+        var key = e.keyCode || e.which;
+        switch(key) {
+            case 37:
+                write("left");
+                break;
+            case 39:
+                write("right");
+                break;
+            case 32:
+                write("space");
+                break;
+        }
+    });
     
     /*
     addUser({id:1,name:"asd"});

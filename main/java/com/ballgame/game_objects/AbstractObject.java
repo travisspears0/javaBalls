@@ -2,10 +2,10 @@ package com.ballgame.game_objects;
 
 public abstract class AbstractObject implements GameObject {
     
-    protected int x;
-    protected int y;
+    protected int x=0;
+    protected int y=0;
     protected int size;
-    protected GameObject.COLOR color;
+    protected String color;
     protected boolean  changed = false;
 
     @Override
@@ -40,12 +40,11 @@ public abstract class AbstractObject implements GameObject {
 
     @Override
     public String getColor() {
-        String resultColor = color.toString().replace("_", "#");
-        return resultColor;
+        return this.color;
     }
 
     @Override
-    public void setColor(GameObject.COLOR color) {
+    public void setColor(String color) {
         this.color = color;
     }
 

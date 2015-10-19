@@ -27,7 +27,7 @@ public class Game {
     private static final DataHandlerManager dataHandlerManager = new DataHandlerManager();
     private static final CommandHandlersManager commandHandlersManager = 
         new CommandHandlersManager();
-    private static final GameManager gameNotifierManager =
+    private static final GameManager gameManager =
         new GameManager();
     
     @OnOpen
@@ -58,9 +58,11 @@ public class Game {
     @OnClose
     public void onClose(Session session) {
         this.log("closed connecion: " + session.getId());
-        int idOfUserToRemove = Game.users.get(session).getId();
+        User userToRemove = Game.users.get(session);
         Game.users.remove(session);
-        Game.dataHandlerManager.handleRemoveUserData(idOfUserToRemove, session);
+        Game.dataHandlerManager.handleRemoveUserData(userToRemove.getId());
+        Game.usersMediator.removeUser(userToRemove);
+        Game.gameManager.removeUser(userToRemove);
     }
     
     @OnError
@@ -98,7 +100,7 @@ public class Game {
         return commandHandlersManager;
     }
 
-    public static GameManager getGameNotifierManager() {
-        return gameNotifierManager;
+    public static GameManager getGameManager() {
+        return gameManager;
     }
 }

@@ -26,7 +26,7 @@ public class NameCommandHandler implements CommandHandler {
         ob.put("type", "userChangedName");
         ob.put("id", caller.getId());
         ob.put("name", name);
-        Game.getDataHandlerManager().sendDataToManyUsers(ob);
+        Game.getDataHandlerManager().sendDataToAllUsers(ob);
     }
 
     @Override
