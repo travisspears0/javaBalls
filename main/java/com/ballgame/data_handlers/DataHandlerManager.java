@@ -14,12 +14,6 @@ public class DataHandlerManager {
         for (Map.Entry pair : users.entrySet()) {
             try {
                 Session session = (Session)pair.getKey();
-                if( session == author ) {
-                    JSONObject ob = jsonObjectToSend;
-                    ob.put("dataReturned", "true");
-                    session.getBasicRemote().sendText(ob.toString());
-                    continue;
-                }
                 session.getBasicRemote().sendText(jsonObjectToSend.toString());
             } catch(IOException e) {
                 User user = (User)pair.getValue();
@@ -75,9 +69,6 @@ public class DataHandlerManager {
         JSONObject groupOb = new JSONObject();
         for (Map.Entry pair : users.entrySet()) {
             User user = (User)pair.getValue();
-            if( user == newUser ) {
-                continue;
-            }
             JSONObject userOb = new JSONObject();
             userOb.put("id",user.getId());
             userOb.put("name",user.getName());
@@ -87,6 +78,7 @@ public class DataHandlerManager {
         }
         JSONObject resultOb = new JSONObject();
         resultOb.put("type", "usersList");
+        resultOb.put("yourId", newUser.getId());
         resultOb.put("users", groupOb);
         try {
             newSession.getBasicRemote().sendText(resultOb.toString());

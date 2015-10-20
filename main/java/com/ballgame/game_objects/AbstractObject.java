@@ -1,10 +1,16 @@
 package com.ballgame.game_objects;
 
+import org.json.JSONObject;
+
 public abstract class AbstractObject implements GameObject {
     
     protected int x=0;
     protected int y=0;
-    protected int size;
+    /**
+     * a value between 10 and 30(may be changed) which determines the radius of the ball
+     * representing object
+     */
+    protected int size = 20 ;
     protected String color;
     protected boolean  changed = false;
 
@@ -57,5 +63,8 @@ public abstract class AbstractObject implements GameObject {
     public synchronized void setChanged(boolean changed) {
         this.changed = changed;
     }
+    
+    @Override
+    public abstract JSONObject getChangedStatus();
     
 }

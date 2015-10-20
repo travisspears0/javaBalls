@@ -1,5 +1,6 @@
 package com.ballgame.objects;
 
+import com.ballgame.game_objects.GameObject;
 import com.ballgame.game_objects.PlayerObject;
 import javax.websocket.Session;
 
@@ -16,8 +17,8 @@ public class User {
     
     public User(UsersMediator mediator, Session session) {
         this.mediator = mediator;
-        this.mediator.addUser(this);
         this.session = session;
+        this.mediator.addUser(this);
     }
     
     @Override
@@ -67,8 +68,9 @@ public class User {
         return playerObject;
     }
 
-    public void assignPlayerObject() {
-        this.playerObject = new PlayerObject();
+    public PlayerObject assignPlayerObject() {
+        this.playerObject = new PlayerObject(this.id);
+        return this.playerObject;
     }
 
     public boolean isInGame() {

@@ -16,9 +16,9 @@ public class GameLoop implements Runnable {
         Random r = new Random();
         try {
             while( !Thread.interrupted() ) {
-                //Game.getGameManager().notifyUsers();
+                Game.getGameManager().notifyUsers();
                 System.out.println("loop " + r.nextInt());
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(50);
             }
         } catch(InterruptedException e) {
             System.out.println("game ended");

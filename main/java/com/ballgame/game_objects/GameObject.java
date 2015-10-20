@@ -1,5 +1,7 @@
 package com.ballgame.game_objects;
 
+import org.json.JSONObject;
+
 public interface GameObject {
     /*
     public enum SHAPE {
@@ -30,5 +32,6 @@ public interface GameObject {
     public void setColor(String color);
     public void setChanged(boolean changed);
     public boolean isChanged();
+    public JSONObject getChangedStatus();
     
 }

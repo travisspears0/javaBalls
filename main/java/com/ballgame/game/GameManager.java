@@ -1,6 +1,7 @@
 package com.ballgame.game;
 
 import com.ballgame.game_objects.GameObject;
+import com.ballgame.game_objects.PlayerObject;
 import com.ballgame.objects.User;
 import com.ballgame.servers.Game;
 import java.io.IOException;
@@ -40,11 +41,11 @@ public class GameManager {
         JSONArray jsonArray = new JSONArray();
         for( GameObject ob : this.gameObjects ) {
             if( ob.isChanged() ) {
-                jsonArray.put(ob);
+                jsonArray.put(ob.getChangedStatus());
                 ob.setChanged(false);
             }
         }
-        objectToSend.put("type", "gameStatus");
+        objectToSend.put("type", "gameState");
         objectToSend.put("data", jsonArray);
         for( User user : this.users ) {
             try {
@@ -68,14 +69,17 @@ public class GameManager {
             this.gameLoopThread.start();
         }
         this.users.add(user);
-        user.assignPlayerObject();
+        PlayerObject playerObject = user.assignPlayerObject();
+        this.gameObjects.add(playerObject);
         user.setInGame(true);
+        playerObject.startThread();
         return true;
     }
     
     public void removeUser(User user) {
         boolean removed = this.users.remove(user);
         if( removed ) {
+            user.getPlayerObject().interruptThread();
             this.freeColor(user.getColor());
             if( this.users.isEmpty() ) {
                 this.gameLoopThread.interrupt();

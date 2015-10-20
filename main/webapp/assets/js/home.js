@@ -19,6 +19,8 @@ $(document).ready(function(){
     var MAX_MESSAGES = 20;
     var users = [];
     var playing = false;
+    var myId = false;
+    var gameObjects = {};
     
     /**
      * HELPING FUCTIONS
@@ -45,21 +47,22 @@ $(document).ready(function(){
     function updateUsers() {
         $("#users-list").empty();
         for( var i=0 ; i<users.length ; ++i ) {
+            var id = users[i]["id"];
             var username = users[i]["name"];
-            var dataReturned = users[i]['dataReturned'];
             var inGame = users[i]['inGame'];
+            var color = users[i]['color'];
             
             var userDiv = document.createElement("div");
             var className = "user glyphicon ";
             var iconClass = "glyphicon-user";
-            if( dataReturned ) {
+            if( id == myId ) {
                 iconClass = "glyphicon-certificate";
             } else if( inGame ) {
                 iconClass = "glyphicon-play-circle" ;
             }
             className += iconClass ;
             userDiv.className = className;
-            $(userDiv).html("<span>"+ username +"</span>");
+            $(userDiv).html("<span style='color:"+ color +";'>"+ username +"</span>");
             $("#users-list").append(userDiv);
         }
     }
@@ -117,13 +120,14 @@ $(document).ready(function(){
                 }
                 break;
             case "addUser":
+                if( myId === false ) {
+                    return;
+                }
                 var id = data['id'];
                 var name = data['name'];
-                var dataReturned = ( data['dataReturned'] == 'true' ) ? true : false ;
                 addUser({
                     id: id,
-                    name: name,
-                    dataReturned: dataReturned
+                    name: name
                 });
                 break;
             case "removeUser":
@@ -131,7 +135,9 @@ $(document).ready(function(){
                 removeUser(id);
                 break;
             case "usersList":
+                myId = data['yourId'];
                 data = data['users'];
+                users = [];
                 for( var i in data ) {
                     var user = JSON.parse(data[i]);
                     addUser(user);
@@ -139,18 +145,18 @@ $(document).ready(function(){
                 break;
             case "userJoinedGame":
                 var id = data['id'];
-                var dataReturned = ( typeof data['dataReturned'] !== "undefined" ) ? true : false ;
-                if( dataReturned ) {
-                    write(data);
+                var color = data['newColor'];
+                for( var i in users ) {
+                    if( users[i]['id'] === id ) {
+                        users[i]['inGame'] = true;
+                        users[i]['color'] = color;
+                    }
+                }
+                updateUsers();
+                if( id === myId ) {
                     hideUserInterface();
                     playing = true;
-                } else {
-                    for( var i in users ) {
-                        if( users[i]['id'] == id ) {
-                            users[i]['inGame'] = true;
-                        }
-                    }
-                    updateUsers();
+                    refreshCanvas();
                 }
                 break;
             case "gameFull":
@@ -158,6 +164,19 @@ $(document).ready(function(){
                     color: "#FFFFFF",
                     message: "you can not join right now, the game is full, sorry"
                 });
+                break;
+            case "gameState":
+                write(data);
+                var data = data['data'];
+                for( var i in data ) {
+                    var id = data[i]['id'];
+                    if( typeof gameObjects[id] === 'undefined' ) {
+                        gameObjects[id] = {};
+                    }
+                    for( var key in data[i] ) {
+                        gameObjects[id][key] = data[i][key];
+                    }
+                }
                 break;
             default:
                 write("unrecognized data: " + data);
@@ -303,7 +322,6 @@ $(document).ready(function(){
     
     var canvas = false;
     var ctx = false;
-    var objects = [];
     window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame       ||
                 window.webkitRequestAnimationFrame ||
@@ -340,30 +358,28 @@ $(document).ready(function(){
     };
     */
     function refreshCanvas() {
-        for( var i in objects ) {
-            var x = objects[i]['x'];
-            var y = objects[i]['y'];
-            var size = objects[i]['size'];
-            var shield = objects[i]['shield'];
-            var shape = objects[i]['shape'];
-            var color = objects[i]['color'];
+        ctx.clearRect(0,0,800,600);
+        for( var i in gameObjects ) {
+            var x = gameObjects[i]['x'];
+            var y = gameObjects[i]['y'];
+            var size = gameObjects[i]['size'];
+            //var shield = gameObjects[i]['shield'];
+            //var shape = gameObjects[i]['shape'];
+            var color = gameObjects[i]['color'];
             
             ctx.beginPath();
-            ctx.lineWidth = 1+shield;
+            ctx.lineWidth = 1;
             ctx.fillStyle = color;
-            switch( shape ) {
-                case "circle":
-                    //xcenter,ycenter,r,...
-                    ctx.arc(x, y, size/2, 0, 2*Math.PI, false);
-                    break;
-                case "square":
-                    //tfrom,yfrom,xto,yto
-                    ctx.rect(x-(size/2), y-(size/2), size,size);
-                    break;
-            }
+            ctx.arc(x, y, size, 0, 2*Math.PI, false);
             ctx.fill();
             ctx.strokeStyle = '#003300';
             ctx.stroke();
+            /*
+            ctx.beginPath();
+            ctx.moveTo(x,y);
+            ctx.lineTo(angle...);
+            ctx.stroke();
+            */
         }
         requestAnimFrame(refreshCanvas);
     }

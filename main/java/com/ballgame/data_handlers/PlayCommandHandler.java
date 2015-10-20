@@ -11,10 +11,6 @@ public class PlayCommandHandler implements CommandHandler {
     public void execute(User caller) throws UserDataException {
         this.execute(caller, null);
     }
-    /*
-        TODO no wiec teraz trzeba ogarnac to, zeby byl przydzielany kolor(juz jest w sumie)
-        ale zeby sie wyswietlal ten kolor ludziom i sprawdzic zwalnianie tego koloru onclose
-    */
     @Override
     public void execute(User caller, String[] args) throws UserDataException {
         boolean joined = Game.getGameManager().addUser(caller);
@@ -22,6 +18,7 @@ public class PlayCommandHandler implements CommandHandler {
         if( joined ) {
             ob.put("type", "userJoinedGame");
             ob.put("id", caller.getId());
+            ob.put("newColor", caller.getColor());
             Game.getDataHandlerManager().sendDataToAllUsers(ob, caller.getSession());
         } else {
             ob.put("type", "gameFull");
